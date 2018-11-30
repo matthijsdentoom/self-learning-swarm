@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="http://gtri.gatech.edu"?>
+<runscript xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           name="Straight flying">
+
+    <run start="0.0" end="200" dt="1"
+         time_warp="10"
+         enable_gui="true"
+         network_gui="false"
+         start_paused="true"/>
+
+    <stream_port>50051</stream_port>
+    <stream_ip>localhost</stream_ip>
+
+    <end_condition>time</end_condition> <!-- time, one_team, none-->
+
+    <grid_spacing>1</grid_spacing>
+    <grid_size>1000</grid_size>
+
+    <gui_update_period>10</gui_update_period> <!-- milliseconds -->
+
+    <output_type>summary</output_type>
+    <metrics order="0">RewardMetric</metrics>
+
+    <background_color>191 191 191</background_color> <!-- Red Green Blue -->
+    <log_dir>~/Documents/scrimmage-logs</log_dir>
+
+    <entity_common name="all">
+        <count>1</count>
+        <health>1</health>
+        <radius>1</radius>
+
+        <team_id>1</team_id>
+        <visual_model>Sphere</visual_model>
+        <motion_model>SingleIntegrator</motion_model>
+        <controller>SingleIntegratorControllerSimple</controller>
+        <sensor order="0">MyOpenAISensor</sensor>
+        <autonomy>SimpleLearner</autonomy>
+        <y>0</y>
+        <z>0</z>
+    </entity_common>
+
+    <entity entity_common="all">
+        <x>0</x>
+        <color>77 77 255</color>
+    </entity>
+
+    <entity entity_common="all">
+        <x>0</x>
+        <color>77 77 255</color>
+    </entity>
+
+</runscript>
