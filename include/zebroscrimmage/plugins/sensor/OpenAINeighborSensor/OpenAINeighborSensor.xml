@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="http://gtri.gatech.edu"?>
+<params>
+  <library>OpenAINeighborSensor_plugin</library>
+
+  <comm_range>10.0</comm_range>
+  <num_sensors>8</num_sensors>
+</params>
