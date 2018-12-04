@@ -37,7 +37,6 @@
 #include <scrimmage/parse/ParseUtils.h>
 #include <zebroscrimmage/plugins/sensor/PositionSensor/PositionSensor.h>
 
-#include <map>
 #include <string>
 #include <vector>
 
@@ -49,7 +48,7 @@ namespace metrics {
 
 
 class FlockingMetric : public scrimmage::Metrics {
- public:
+public:
     FlockingMetric();
     std::string name() override { return std::string("FlockingMetric"); }
 
@@ -60,11 +59,16 @@ class FlockingMetric : public scrimmage::Metrics {
     void calc_team_scores() override;
 
     void print_team_summaries() override;
- protected:
+protected:
+    double norm2(double first, double second);
+private:
+    std::vector<PositionMessage> receivedMessages_;
 
-    std::map<int, PositionMessage> receivedMessages_;
-
- private:
+    double max_tolerated_distance_; // Maximum distance which is taken into account.
+    double gamma_;                  // Division factor between grouping and distance covered.
+    double grouping_fitness_;
+    double distance_fitness_;
+    double fitness_;
 };
 
 } // namespace metrics
