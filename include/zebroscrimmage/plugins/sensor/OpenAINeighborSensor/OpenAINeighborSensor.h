@@ -34,8 +34,6 @@
 #define INCLUDE_ZEBROSCRIMMAGE_PLUGINS_SENSOR_OPENAINEIGHBORSENSOR_OPENAINEIGHBORSENSOR_H_
 
 #include <scrimmage/plugins/sensor/ScrimmageOpenAISensor/ScrimmageOpenAISensor.h>
-#include <zebroscrimmage/plugins/sensor/Common/NeighbourDistanceSensor.h>
-
 #include <scrimmage/entity/Entity.h>
 #include <scrimmage/entity/Contact.h>
 #include <scrimmage/pubsub/Publisher.h>
@@ -51,7 +49,6 @@ namespace sensor {
 class OpenAINeighborSensor : public ScrimmageOpenAISensor {
  public:
     OpenAINeighborSensor() = default;
-    ~OpenAINeighborSensor() override;
     void init(std::map<std::string, std::string> &params) override;
     void set_observation_space() override;
     void get_observation(double *data, uint32_t beg_idx, uint32_t end_idx) override;
@@ -62,7 +59,7 @@ class OpenAINeighborSensor : public ScrimmageOpenAISensor {
     double comm_range_{};     // Communication range of the robot.
     int num_sensors_{};       // Number of sensors the robot has.
 
-    NeighbourDistanceSensor * nds_{};
+    int findSector(scrimmage::StatePtr &own_state, State &other_state);
 };
 } // namespace sensor
 } // namespace scrimmage

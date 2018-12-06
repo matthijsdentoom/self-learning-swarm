@@ -61,17 +61,11 @@ namespace scrimmage {
 namespace sensor {
 
 
-OpenAINeighborSensor::~OpenAINeighborSensor()
-{
-    delete nds_;
-}
-
 void OpenAINeighborSensor::init(std::map<std::string, std::string> &params)
 {
     comm_range_ = sc::get<double>("comm_range", params, comm_range_);
     num_sensors_ = sc::get<int>("num_sensors", params, 8);      // Requires to be even.
     rtree_ = parent_->rtree();
-    nds_ = new NeighbourDistanceSensor(num_sensors_, comm_range_, parent_);
 }
 
 void OpenAINeighborSensor::set_observation_space()
@@ -91,12 +85,56 @@ void OpenAINeighborSensor::get_observation(double *data, uint32_t beg_idx, uint3
     auto state = parent_->state();
     rtree_->neighbors_in_range(state->pos_const(), rtree_neighbors, comm_range_);
 
-    auto skirt = nds_->create_skirt(rtree_neighbors);
-
+    // Set all data to farrest possible distance (the comm range).
     for (uint i = beg_idx; i < end_idx; i++)
     {
-        data[i] = skirt[i].second;
+        data[i] = comm_range_;
     }
+
+    // Find sector of each neighbor and update if shorter by.
+    for (auto &rtree_neighbor : rtree_neighbors) {
+
+        auto other_state = *(*parent_->contacts())[rtree_neighbor.id()].state();
+
+        // Ignore own position / id
+        if (other_state.pos() != state->pos()) {
+            // Get distance to other.
+            Eigen::Vector3d diff = other_state.pos() - state->pos();
+            double dist = diff.norm();
+
+            // Find sector of other.
+            int sector = findSector(state, other_state);
+
+            if (dist < data[sector])
+            {
+                data[sector] = dist;
+            }
+        }
+    }
+}
+
+int OpenAINeighborSensor::findSector(scrimmage::StatePtr &own_state, State &other_state)
+{
+    int sector = 0;
+    double fov_width = 4 * M_PI / num_sensors_;
+
+    if (own_state->rel_pos_local_frame(other_state.pos())[1] < 0)
+    {   // If the position of the other robot is to the left, put it on a sensor to the other side.
+        sector += num_sensors_ / 2;
+    }
+
+    for (int i = 0; i < num_sensors_ / 2; i++)
+    {
+        if (own_state->InFieldOfView(other_state, fov_width /* fov width */, 90 /* fov height */))
+        {   // The field of view works on 2 sides, but we already accounted this above.
+            sector += i;
+            break;
+        }
+
+        fov_width += 4 * M_PI / num_sensors_;
+    }
+
+    return sector;
 }
 
 
