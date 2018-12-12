@@ -66,9 +66,10 @@ private:
 
     double max_tolerated_distance_; // Maximum distance which is taken into account.
     double gamma_;                  // Division factor between grouping and distance covered.
-    double grouping_fitness_;
-    double distance_fitness_;
-    double fitness_;
+    double grouping_fitness_;       // Fitness based on the grouping of the robot.
+    double distance_fitness_;       // Fitness based on the distance.
+    double fitness_;                // Fitness found up till this point.
+    double top_speed_;              // Top speed of the robot.
 };
 
 } // namespace metrics

@@ -66,7 +66,8 @@ FlockingMetric::FlockingMetric() = default;
 void FlockingMetric::init(std::map<std::string, std::string> &params) {
 
     max_tolerated_distance_ = sc::get<double>("max_tolerated_distance", params, 20);
-    gamma_ = sc::get<double>("gamma", params, 0.5);
+    gamma_ = sc::get<double>("gamma", params, 0.2);
+    top_speed_ = sc::get<double>("top_speed", params, 5.0);
 
     auto position_msg_cb = [&] (scrimmage::MessagePtr<PositionMessage> msg) {
 //        cout << msg->data.id << " at " << msg->data.x_pos << ", " << msg->data.y_pos << endl;
@@ -103,7 +104,7 @@ bool FlockingMetric::step_metrics(double t, double dt) {
 
     // Calculate deviation fitness
     grouping_fitness_ = 1 - summed_deviation / receivedMessages_.size();
-    distance_fitness_ = norm2(avg_x, avg_y);
+    distance_fitness_ = norm2(avg_x, avg_y) / (t * top_speed_);
 
     fitness_ = gamma_ * grouping_fitness_ + (1 - gamma_) * distance_fitness_;
 
