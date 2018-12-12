@@ -68,7 +68,7 @@ void OpenAINeighborSensor::init(std::map<std::string, std::string> &params)
 {
     comm_range_ = sc::get<double>("comm_range", params, comm_range_);
     num_sensors_ = sc::get<int>("num_sensors", params, 8);      // Requires to be even.
-    draw_sensor_ = sc::get<bool>("draw_sensor", params, true);
+    draw_sensor_ = sc::get<bool>("draw_sensor", params, false);
     rtree_ = parent_->rtree();
 }
 
