@@ -4,10 +4,12 @@ import scrimmage.utils
 import neat
 import csv
 import visualize
+from os.path import expanduser
 
 max_evaluation_steps = 2000
 num_generations = 1
-metric_directory = "/home/matthijs/Documents/scrimmage-logs/flock-experiment/latest/"   #TODO, only works single-threaded
+
+metric_directory = expanduser("~") + "/Documents/scrimmage-logs/flock-experiment/latest/"   #TODO, only works single-threaded
 num_robots = 10
 
 def get_action(nn, observation):
