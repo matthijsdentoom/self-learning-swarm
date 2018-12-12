@@ -2,24 +2,20 @@ import copy
 import gym
 import scrimmage.utils
 import neat
+import csv
 import visualize
 
-max_evaluation_steps = 10
-num_generations = 2
-
+max_evaluation_steps = 2000
+num_generations = 1
+metric_directory = "/home/matthijs/Documents/scrimmage-logs/flock-experiment/latest/"   #TODO, only works single-threaded
+num_robots = 10
 
 def get_action(nn, observation):
     """Returns the action which the robot does with the current observation"""
 
-    action = nn.activate(observation)[0]
-    action = round(action)
+    actions = nn.activate(observation)
 
-
-    if action > 1: action = 1
-    elif action < 0: action = 0
-
-    return action
-
+    return actions
 
 def execute_environment(net, mission_file_name):
 
@@ -31,39 +27,48 @@ def execute_environment(net, mission_file_name):
     # the sensor plugin edits the data in-place
     obs = copy.deepcopy(env.reset())
 
-    total_reward = 0
     for i in range(max_evaluation_steps):
 
         # Note this assumes that the network does not change, ie. feed forward network.
-        actions = [[get_action(net, obs[0])], [get_action(net, obs[1])]]
+        actions = [[get_action(net, obs[i][:-1])] for i in range(num_robots)]
         obs, reward, done = env.step(actions)[:3]
-        total_reward += reward
 
         if done and not i == max_evaluation_steps - 1:
             total_reward = execute_environment(net, env)  # Execute the problem again
-            # TODO: prevent this from going in inifinite recursion.
-            break
+            # TODO: prevent this from going in infinite recursion.
+
+            return total_reward
 
     env.close()
 
-    print("Total Reward: %2.2f" % total_reward)
+    total_reward = 0
+    with open(metric_directory + 'summary.csv', mode='r') as csv_file:
+        csv_reader = csv.DictReader(csv_file)
+        for row in csv_reader:
+            # Assume only one row is there with the score.
+            total_reward = float(row['score'])
 
     return total_reward
 
 
-def eval_genomes(genomes, config, mission_file_name):
+def eval_genomes(genomes, config, env):
     """This function evaluates the current genomes in the population."""
     for genome_id, genome in genomes:
         genome.fitness = 0
         net = neat.nn.FeedForwardNetwork.create(genome, config)
-        genome.fitness = execute_environment(net, mission_file_name)
+        genome.fitness = execute_environment(net, env)
 
+def remove_scrimmage_env():
+
+    if 'scrimmage-v0' in gym.envs.registry.env_specs.keys():
+        del gym.envs.registry.env_specs['scrimmage-v0']
 
 def create_scrimmage_env(mission_file_name):
     """Create the scrimmage environment of the specified mission file."""
 
     try:
         env = gym.make('scrimmage-v0')
+
     except gym.error.Error:
         mission_file = scrimmage.utils.find_mission(mission_file_name)
 
@@ -94,24 +99,22 @@ def learn_staying_on_line(env, config_path):
     p.add_reporter(neat.StdOutReporter(True))
     stats = neat.StatisticsReporter()
     p.add_reporter(stats)
-    # p.add_reporter(neat.Checkpointer(5))
 
     # Run for up for the given number of generations
-    f = lambda genomes, config: eval_genomes(genomes, config, mission_file_name=mission_file_name)
-
+    f = lambda genomes, config: eval_genomes(genomes, config, env=mission_file_name)
     winner = p.run(f, num_generations)
 
     winner_net = neat.nn.FeedForwardNetwork.create(winner, config)
 
-    execute_environment(winner_net, mission_file_name)
+    remove_scrimmage_env()
+    execute_environment(winner_net, "zebros_flocking_output.xml")
 
-    visualize.draw_net(config, winner, True)
-    visualize.plot_stats(stats, ylog=False, view=True)
-    visualize.plot_species(stats, view=True)
+    node_names = {-1:'1', -2: '2', -3:'3', -3: '3', -4:'4', -5: '5', -6:'6', -7: '7', 0:'left', 1:'right'}
+    visualize.draw_net(config, winner, node_names=node_names)
+    visualize.plot_stats(stats, ylog=False, view=False)
+    visualize.plot_species(stats, view=False)
 
-    p = neat.Checkpointer.restore_checkpoint('neat-checkpoint-4')
-    p.run(eval_genomes, 10)
-
+    print(winner)
 
 
 def test_openai(mission_file_name):
@@ -123,6 +126,6 @@ def test_openai(mission_file_name):
 
 
 if __name__ == '__main__':
-    mission_file_name = 'openai_mission.xml'
+    mission_file_name = 'zebros_flocking.xml'
 
     test_openai(mission_file_name)
