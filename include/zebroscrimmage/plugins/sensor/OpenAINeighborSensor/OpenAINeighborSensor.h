@@ -60,6 +60,8 @@ class OpenAINeighborSensor : public ScrimmageOpenAISensor {
     int num_sensors_{};       // Number of sensors the robot has.
 
     int findSector(scrimmage::StatePtr &own_state, State &other_state);
+
+    bool draw_sensor_{};          // Indicates whether the sensor range needs to be drawn.
 };
 } // namespace sensor
 } // namespace scrimmage

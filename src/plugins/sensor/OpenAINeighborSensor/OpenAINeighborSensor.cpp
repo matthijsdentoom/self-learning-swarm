@@ -37,6 +37,9 @@
 #include <scrimmage/math/State.h>
 #include <scrimmage/parse/ParseUtils.h>
 
+#include <scrimmage/proto/Shape.pb.h>         // scrimmage_proto::Shape
+#include <scrimmage/proto/ProtoConversions.h> // scrimmage::set()
+
 #include <scrimmage/pubsub/Message.h>
 #include <scrimmage/proto/State.pb.h>
 #include <scrimmage/common/Random.h>
@@ -65,17 +68,20 @@ void OpenAINeighborSensor::init(std::map<std::string, std::string> &params)
 {
     comm_range_ = sc::get<double>("comm_range", params, comm_range_);
     num_sensors_ = sc::get<int>("num_sensors", params, 8);      // Requires to be even.
+    draw_sensor_ = sc::get<bool>("draw_sensor", params, true);
     rtree_ = parent_->rtree();
 }
 
 void OpenAINeighborSensor::set_observation_space()
 {
-    ScrimmageOpenAISensor::set_observation_space();
+    // Register sensor for the sensor skirt.
     for (int i = 0; i < num_sensors_; i++)
     {
-        observation_space.continuous_extrema.push_back(std::make_pair(0, comm_range_));
+        observation_space.continuous_extrema.emplace_back(std::make_pair(0, comm_range_));
     }
 
+    // Register the sensor with the heading of the closes robot.
+    observation_space.continuous_extrema.emplace_back(std::make_pair(-M_PI, M_PI));
 }
 
 void OpenAINeighborSensor::get_observation(double *data, uint32_t beg_idx, uint32_t end_idx)
@@ -85,8 +91,11 @@ void OpenAINeighborSensor::get_observation(double *data, uint32_t beg_idx, uint3
     auto state = parent_->state();
     rtree_->neighbors_in_range(state->pos_const(), rtree_neighbors, comm_range_);
 
-    // Set all data to farrest possible distance (the comm range).
-    for (uint i = beg_idx; i < end_idx; i++)
+    double closest_distance = comm_range_ + 1;
+    double heading_of_closest_robot = parent_->state()->quat().yaw();
+
+    // Set all data to farrest possible distance (the comm ra   nge).
+    for (uint i = beg_idx; i < end_idx - 1; i++)
     {
         data[i] = comm_range_;
     }
@@ -108,7 +117,45 @@ void OpenAINeighborSensor::get_observation(double *data, uint32_t beg_idx, uint3
             if (dist < data[sector])
             {
                 data[sector] = dist;
+
+                // Update the heading if the robot is closest.
+                if (dist < closest_distance)
+                {
+                    closest_distance = dist;
+                    heading_of_closest_robot = other_state.quat().yaw();
+                }
             }
+        }
+    }
+
+    // Set the relative heading of the closest robot.
+    double own_heading = parent_->state()->quat().yaw();
+    double relative_heading = heading_of_closest_robot - own_heading;
+    if (relative_heading < -M_PI) relative_heading += 2 * M_PI;  // Ensure relative heading in [-pi, pi]
+    data[end_idx - 1] = relative_heading;
+
+    // Draw lines to to make the sensors.
+    if (draw_sensor_)
+    {
+        for (int i = 0; i < num_sensors_; i++) {
+            double sensor_angle = 2 * M_PI * (1.0 * i / num_sensors_) + M_PI / num_sensors_;
+
+            if (i >= num_sensors_ / 2) {
+                sensor_angle = -sensor_angle + M_PI;
+            }
+
+            auto own_position = parent_->state()->pos();
+            double heading = parent_->state()->quat().yaw() + sensor_angle;
+
+            double x_diff = data[i] * cos(heading);
+            double y_diff = data[i] * sin(heading);
+
+            auto line = std::make_shared<scrimmage_proto::Shape>();
+            sc::set(line->mutable_color(), 255, 0, 0);
+            line->set_opacity(0.75);
+            sc::set(line->mutable_line()->mutable_start(), own_position);
+            sc::set(line->mutable_line()->mutable_end(), own_position + Eigen::Vector3d(x_diff, y_diff, 0.42));
+            draw_shape(line);
         }
     }
 }
