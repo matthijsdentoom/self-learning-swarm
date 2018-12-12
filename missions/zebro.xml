@@ -39,7 +39,7 @@
         <x>0</x>
         <y>0</y>
         <z>0.42</z>
-        <heading>-90</heading>
+        <random_heading>true</random_heading>
         <controller>SimpleDifferentialDriveController</controller>
         <motion_model>SimpleDifferentialDrive</motion_model>
         <visual_model>volkswagen</visual_model>
@@ -56,7 +56,7 @@
         <x>0.5</x>
         <y>9</y>
         <z>0.42</z>
-        <visual_model>volkswagen</visual_model>
+        <visual_model>obstacle</visual_model>
     </entity>
 
     <entity>
@@ -66,7 +66,7 @@
         <x>-0.5</x>
         <y>5</y>
         <z>0.42</z>
-        <visual_model>volkswagen</visual_model>
+        <visual_model>obstacle</visual_model>
     </entity>
 
 
@@ -77,7 +77,7 @@
         <x>-0.5</x>
         <y>-7</y>
         <z>0.42</z>
-        <visual_model>volkswagen</visual_model>
+        <visual_model>obstacle</visual_model>
     </entity>
 
 
@@ -88,7 +88,7 @@
         <x>0.5</x>
         <y>-3</y>
         <z>0.42</z>
-        <visual_model>volkswagen</visual_model>
+        <visual_model>obstacle</visual_model>
     </entity>
 
 </runscript>
