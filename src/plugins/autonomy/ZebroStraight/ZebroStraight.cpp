@@ -62,8 +62,8 @@ void ZebroStraight::init(std::map<std::string, std::string> &params) {
 bool ZebroStraight::step_autonomy(double t, double dt) {
 
 
-    vars_.output(desired_left_speed_idx_, 0);
-    vars_.output(desired_right_speed_idx_, initial_speed_ / 4);
+    vars_.output(desired_left_speed_idx_, initial_speed_);
+    vars_.output(desired_right_speed_idx_, initial_speed_);
 
     return true;
 }

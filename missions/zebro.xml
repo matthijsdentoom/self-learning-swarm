@@ -28,7 +28,7 @@
     <log_dir>~/Documents/scrimmage-logs</log_dir>
 
     <network>LocalNetwork</network>
-    <metrics order="0">FlockingMetric</metrics>
+    <metrics order="0" gamma="0">FlockingMetric</metrics>
 
     <!-- uncomment "seed" and use integer for deterministic results -->
     <!--<seed>1714060370</seed>-->
