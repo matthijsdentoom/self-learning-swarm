@@ -5,5 +5,4 @@
   <radius>4</radius>
   <module>my_openai</module>
   <actor_func>get_action</actor_func>
-  <initial_speed>24.3</initial_speed>
 </params>

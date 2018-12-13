@@ -70,7 +70,7 @@ void FlockingMetric::init(std::map<std::string, std::string> &params) {
     top_speed_ = sc::get<double>("top_speed", params, 5.0);
 
     auto position_msg_cb = [&] (scrimmage::MessagePtr<PositionMessage> msg) {
-//        cout << msg->data.id << " at " << msg->data.x_pos << ", " << msg->data.y_pos << endl;
+
         receivedMessages_.emplace_back(msg->data);
     };
 
