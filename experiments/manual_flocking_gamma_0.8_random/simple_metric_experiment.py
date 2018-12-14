@@ -8,7 +8,7 @@ from gym_manager import GymScrimmageEnvironment
 from neat_learner import NeatLearner
 
 max_evaluation_steps = 2000
-num_generations = 1
+num_generations = 100
 
 log_directory = expanduser("~") + "/Documents/scrimmage-logs/"
 experiment_directory = log_directory + "flock-experiment"
