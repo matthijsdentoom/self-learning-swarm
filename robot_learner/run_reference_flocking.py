@@ -63,7 +63,7 @@ def get_action(skirt, closest_heading):
 
 
 if __name__ == '__main__':
-    mission_file_name = 'zebros_flocking.xml'
+    mission_file_name = 'zebros_flocking_simple.xml'
     max_evaluation_steps = 10000
 
     try:

@@ -67,3 +67,6 @@ class NeatLearner:
         visualize.draw_net(self.config, self.winner, node_names=node_names)
 
         print(self.winner)
+
+        with open("winning_genome.txt", "w") as text_file:
+            text_file.write(str(self.winner))
