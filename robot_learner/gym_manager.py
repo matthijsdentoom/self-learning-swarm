@@ -36,9 +36,9 @@ class GymScrimmageEnvironment:
         env.close()
 
     @staticmethod
-    def get_action(nn, observation):
+    def get_action(net, observation):
         """Returns the action which the robot does with the current observation"""
-        actions = nn.activate(observation)
+        actions = net.activate(observation)
 
         return actions
 

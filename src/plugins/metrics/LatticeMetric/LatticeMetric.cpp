@@ -133,7 +133,7 @@ void LatticeMetric::calc_team_scores()
     headers_.emplace_back("sum_dev");
     team_metrics_[1]["sum_dev"] = sum;
 
-    team_scores_[1] = sum;
+    team_scores_[1] = -sum;
 }
 
 void LatticeMetric::print_team_summaries()
