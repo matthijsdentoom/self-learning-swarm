@@ -22,10 +22,10 @@
     <gui_update_period>10</gui_update_period> <!-- milliseconds -->
 
     <plot_tracks>false</plot_tracks>
-    <output_type>summary</output_type>
     <show_plugins>false</show_plugins>
 
-    <log_dir>~/Documents/scrimmage-logs/flock-experiment</log_dir>
+    <output_type weights_file="unity">all</output_type>
+    <log_dir>~/Documents/scrimmage-logs/flock-experiment-final</log_dir>
 
     <network>LocalNetwork</network>
     <metrics order="0">LatticeMetric</metrics>
