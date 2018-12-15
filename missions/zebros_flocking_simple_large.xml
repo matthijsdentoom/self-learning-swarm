@@ -22,10 +22,10 @@
     <gui_update_period>10</gui_update_period> <!-- milliseconds -->
 
     <plot_tracks>false</plot_tracks>
+    <output_type>summary</output_type>
     <show_plugins>false</show_plugins>
 
-    <output_type weights_file="unity">all</output_type>
-    <log_dir>~/Documents/scrimmage-logs/flock-experiment-final</log_dir>
+    <log_dir>~/Documents/scrimmage-logs/flock-experiment</log_dir>
 
     <network>LocalNetwork</network>
     <metrics order="0" gamma="0.2">FlockingMetric</metrics>
@@ -42,7 +42,7 @@
         <variance_z>0</variance_z>
         <health>1</health>
         <use_variance_all_ents>true</use_variance_all_ents>
-        <count>10</count>
+        <count>30</count>
 
         <x>0</x>
         <y>0</y>

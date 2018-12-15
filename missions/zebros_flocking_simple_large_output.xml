@@ -42,7 +42,7 @@
         <variance_z>0</variance_z>
         <health>1</health>
         <use_variance_all_ents>true</use_variance_all_ents>
-        <count>10</count>
+        <count>30</count>
 
         <x>0</x>
         <y>0</y>

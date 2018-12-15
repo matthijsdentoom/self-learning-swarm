@@ -68,6 +68,7 @@ void FlockingMetric::init(std::map<std::string, std::string> &params) {
     max_tolerated_distance_ = sc::get<double>("max_tolerated_distance", params, 20);
     gamma_ = sc::get<double>("gamma", params, 0.2);
     top_speed_ = sc::get<double>("top_speed", params, 5.0);
+    tick_counter_ = 0;
 
     auto position_msg_cb = [&] (scrimmage::MessagePtr<PositionMessage> msg) {
 
@@ -79,35 +80,37 @@ void FlockingMetric::init(std::map<std::string, std::string> &params) {
 
 bool FlockingMetric::step_metrics(double t, double dt) {
 
-    // Calculate average location
-    double avg_x = 0;
-    double avg_y = 0;
+    if (t > tick_counter_)
+    {   // Only check every whole point.
+        tick_counter_++;
 
-    for (auto msg : receivedMessages_)
-    {
-        avg_x += msg.x_pos;
-        avg_y += msg.y_pos;
+        // Calculate average location
+        double avg_x = 0;
+        double avg_y = 0;
+
+        for (auto msg : receivedMessages_) {
+            avg_x += msg.x_pos;
+            avg_y += msg.y_pos;
+        }
+
+        avg_x /= receivedMessages_.size();
+        avg_y /= receivedMessages_.size();
+
+        double summed_deviation = 0.0;
+
+        // Calculate average deviation from mean
+        for (auto msg : receivedMessages_) {
+            summed_deviation += sqrt(pow(avg_x - msg.x_pos, 2) + pow(avg_y - msg.y_pos, 2));
+        }
+
+        summed_deviation /= max_tolerated_distance_;
+
+        // Calculate deviation fitness
+        grouping_fitness_ = 1 - summed_deviation / receivedMessages_.size();
+        distance_fitness_ = norm2(avg_x, avg_y) / (t * top_speed_);
+
+        fitness_ = gamma_ * grouping_fitness_ + (1 - gamma_) * distance_fitness_;
     }
-
-    avg_x /= receivedMessages_.size();
-    avg_y /= receivedMessages_.size();
-
-    double summed_deviation = 0.0;
-
-    // Calculate average deviation from mean
-    for (auto msg : receivedMessages_)
-    {
-        summed_deviation += sqrt(pow(avg_x - msg.x_pos, 2) + pow(avg_y - msg.y_pos, 2));
-    }
-
-    summed_deviation /= max_tolerated_distance_;
-
-    // Calculate deviation fitness
-    grouping_fitness_ = 1 - summed_deviation / receivedMessages_.size();
-    distance_fitness_ = norm2(avg_x, avg_y) / (t * top_speed_);
-
-    fitness_ = gamma_ * grouping_fitness_ + (1 - gamma_) * distance_fitness_;
-
     receivedMessages_.clear();
 
     return true;

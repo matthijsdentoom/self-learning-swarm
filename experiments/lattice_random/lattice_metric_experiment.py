@@ -4,7 +4,6 @@ import sys
 sys.path.insert(0, '../../robot_learner')
 
 from os.path import expanduser
-from gym_manager import GymScrimmageEnvironment
 from neat_learner import NeatLearner
 
 max_evaluation_steps = 2000
@@ -18,25 +17,17 @@ experiment_mission_file = "zebros_flocking_lattice.xml"
 output_mission_file = "zebros_flocking_lattice_output.xml"
 
 
-def lattice_metric_experiment():
+def lattice_metric_experiment_func():
 
-    experiment_manager = GymScrimmageEnvironment(experiment_mission_file, max_evaluation_steps)
     neat_learner = NeatLearner('config-feedforward', experiment_directory)
 
-    neat_learner.run_experiment(num_generations, experiment_manager)
+    for i in range(5):
+        neat_learner.run_and_visualize(num_generations, experiment_mission_file, output_mission_file, index=i)
 
-    experiment_manager.close()
-
-    print("Running winner")
-
-    # Print the winner.
-    experiment_manager = GymScrimmageEnvironment(output_mission_file, max_evaluation_steps)
-    neat_learner.visualize_winner(experiment_manager)
-
-    # Remove the experimental directory, since it is not used anymore.
-    shutil.rmtree(experiment_directory)
+        # Remove the experimental directory, since it is not used anymore.
+        shutil.rmtree(experiment_directory)
 
 
 if __name__ == '__main__':
 
-    lattice_metric_experiment()
+    lattice_metric_experiment_func()

@@ -70,6 +70,7 @@ private:
     double distance_fitness_;       // Fitness based on the distance.
     double fitness_;                // Fitness found up till this point.
     double top_speed_;              // Top speed of the robot.
+    int tick_counter_;
 };
 
 } // namespace metrics

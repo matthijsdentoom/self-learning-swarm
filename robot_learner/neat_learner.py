@@ -1,6 +1,10 @@
 import csv
+import datetime
+import time
 import visualize
 import neat
+from genome_serializer import GenomeSerializer
+from gym_manager import GymScrimmageEnvironment
 
 
 class NeatLearner:
@@ -40,6 +44,7 @@ class NeatLearner:
             genome.fitness = self.evaluate(net, gym_environment)
 
     def run_experiment(self, num_generations, gym_env_manager):
+        """This function runs a single experiment and returns its statistics and winner."""
 
         # Create the population, which is the top-level object for a NEAT run.
         p = neat.Population(self.config)
@@ -51,22 +56,60 @@ class NeatLearner:
 
         # Run for up for the given number of generations
         f = lambda genomes, config: self.eval_genomes(genomes, config, gym_environment=gym_env_manager)
-        self.winner = p.run(f, num_generations)
+        winner = p.run(f, num_generations)
         # TODO by running one generation in sequence, one might get multiple winners.
 
-        visualize.plot_stats(stats, ylog=False, view=False)
-        visualize.plot_species(stats, view=False)
+        return winner, stats
 
-    def visualize_winner(self, gym_environment):
+    def run_and_visualize(self, num_generations, mission_file, output_mission_file, evaluation_steps=2000, index=''):
 
-        winner_net = neat.nn.FeedForwardNetwork.create(self.winner, self.config)
+        print("Running evaluation " + str(index))
 
-        gym_environment.execute_environment(winner_net)
+        start_time = time.clock()
 
+        gym_env_manager = GymScrimmageEnvironment(mission_file, evaluation_steps)
+        self.winner, stats = self.run_experiment(num_generations, gym_env_manager)
+        gym_env_manager.close()
+
+        end_time = time.clock()
+        run_time = end_time - start_time
+
+        gym_env_manager = GymScrimmageEnvironment(mission_file, evaluation_steps)
+        self.winner, stats = self.run_experiment(num_generations, gym_env_manager)
+        gym_env_manager.close()
+
+        # Visualise the statistics.
+        NeatLearner.visualize_stats(stats, fitness_out_file='avg_fitness' + str(index) + '.svg',
+                                    species_out_file='species' + str(index) + '.svg')
+        self.output_winner('nn_winner' + str(index), 'winner' + str(index))
+
+        # Write run-time, and current time (used to get back to the winning configuration) to csv file.
+        with open('running_stats.csv', 'a') as file:
+            writer = csv.writer(file)
+            writer.writerow([index, run_time, datetime.datetime.now()])
+
+        # Run the winner in another environment.
+        gym_output_env_manager = GymScrimmageEnvironment(output_mission_file, evaluation_steps)
+        self.run_genome(self.winner, gym_output_env_manager)
+        gym_output_env_manager.close()
+
+    def output_winner(self, net_filename='nn_winner', genome_filename='winner'):
+        """This function outputs the current winner in graph and in pickle file."""
         node_names = {-1: '1', -2: '2', -3: '3', -3: '3', -4: '4', -5: '5', -6: '6', -7: '7', 0: 'left', 1: 'right'}
-        visualize.draw_net(self.config, self.winner, node_names=node_names)
+        visualize.draw_net(self.config, self.winner, node_names=node_names, filename=net_filename)
+
+        GenomeSerializer.serialize(self.winner, genome_filename)
 
         print(self.winner)
 
-        with open("winning_genome.txt", "w") as text_file:
-            text_file.write(str(self.winner))
+    def run_genome(self, genome, gym_environment):
+        """This function runs the given genome in the given environment."""
+
+        genome_net = neat.nn.FeedForwardNetwork.create(genome, self.config)
+        gym_environment.execute_environment(genome_net)
+
+    @staticmethod
+    def visualize_stats(stats, fitness_out_file='avg_fitness.svg', species_out_file='species.svg'):
+        """"This function visualizes the output files."""
+        visualize.plot_stats(stats, ylog=False, view=False, filename=fitness_out_file)
+        visualize.plot_species(stats, view=False, filename=species_out_file)

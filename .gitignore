@@ -31,3 +31,4 @@ grpc.patch
 py_bindings
 *.svg
 *.gv
+*.pickle

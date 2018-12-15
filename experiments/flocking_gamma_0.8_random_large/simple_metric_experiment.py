@@ -13,8 +13,8 @@ log_directory = expanduser("~") + "/Documents/scrimmage-logs/"
 experiment_directory = log_directory + "flock-experiment"
 final_directory = log_directory + "flock-experiment-final"
 
-experiment_mission_file = "zebros_flocking_simple.xml"
-output_mission_file = "zebros_flocking_simple_output.xml"
+experiment_mission_file = "zebros_flocking_simple_large.xml"
+output_mission_file = "zebros_flocking_simple_large_output.xml"
 
 
 def simple_metric_experiment():

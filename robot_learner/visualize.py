@@ -121,6 +121,9 @@ def draw_net(config, genome, view=False, filename=None, node_names=None, show_di
         warnings.warn("This display is not available due to a missing optional dependency (graphviz)")
         return
 
+    if filename is not None:
+        filename += '.gv'
+
     if node_names is None:
         node_names = {}
 

@@ -28,7 +28,7 @@
     <log_dir>~/Documents/scrimmage-logs/flock-experiment</log_dir>
 
     <network>LocalNetwork</network>
-    <metrics order="0">FlockingMetric</metrics>
+    <metrics order="0" gamma="0.2">FlockingMetric</metrics>
     <display_progress>false</display_progress>
 
     <!-- uncomment "seed" and use integer for deterministic results -->

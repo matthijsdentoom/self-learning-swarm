@@ -22,13 +22,13 @@ def main():
     experiment_manager = GymScrimmageEnvironment(experiment_mission_file, max_evaluation_steps)
     neat_learner = NeatLearner('config-feedforward', experiment_directory)
 
-    neat_learner.run_experiment(num_generations, experiment_manager)
+    neat_learner.single_experiment(num_generations, experiment_manager)
 
     experiment_manager.close()
 
     # Print the winner.
     experiment_manager = GymScrimmageEnvironment(output_mission_file, max_evaluation_steps)
-    neat_learner.visualize_winner(experiment_manager)
+    neat_learner.output_winner(experiment_manager)
 
     # Remove the experimental directory, since it is not used anymore.
     shutil.rmtree(experiment_directory)
