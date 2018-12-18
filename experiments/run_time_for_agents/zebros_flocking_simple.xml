@@ -1,0 +1,63 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="http://gtri.gatech.edu"?>
+<runscript xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           name="Zebros">
+
+    <run start="0.0" end="100.0" dt="0.01"
+       time_warp="1"
+       enable_gui="true"
+       network_gui="false"
+       start_paused="true"/>
+
+    <stream_port>50051</stream_port>
+    <stream_ip>localhost</stream_ip>
+
+    <end_condition>time, none</end_condition> <!-- time, one_team, none-->
+
+    <grid_spacing>10</grid_spacing>
+    <grid_size>1000</grid_size>
+
+    <!--<terrain>mcmillan</terrain>-->
+    <background_color>191 191 191</background_color> <!-- Red Green Blue -->
+    <gui_update_period>10</gui_update_period> <!-- milliseconds -->
+
+    <plot_tracks>false</plot_tracks>
+    <output_type>summary</output_type>
+    <show_plugins>false</show_plugins>
+
+    <log_dir>~/Documents/scrimmage-logs/flock-experiment</log_dir>
+
+    <network>LocalNetwork</network>
+    <metrics order="0" gamma="0.2">FlockingMetric</metrics>
+    <display_progress>false</display_progress>
+
+    <!-- uncomment "seed" and use integer for deterministic results -->
+    <!--<seed>1714060370</seed>-->
+
+    <multi_threaded num_threads="4">true</multi_threaded>
+
+    <entity>
+        <team_id>1</team_id>
+        <color>255 00 0</color>
+        <variance_x>20</variance_x>
+        <variance_y>20</variance_y>
+        <variance_z>0</variance_z>
+        <health>1</health>
+        <use_variance_all_ents>true</use_variance_all_ents>
+        <count>3</count>
+
+        <x>0</x>
+        <y>0</y>
+        <z>0.42</z>
+
+        <random_heading>true</random_heading>
+        <controller>SimpleDifferentialDriveController</controller>
+        <motion_model>SimpleDifferentialDrive</motion_model>
+        <visual_model>volkswagen</visual_model>
+        <sensor order="0">OpenAINeighborSensor</sensor>
+        <sensor>PositionSensor</sensor>
+        <autonomy>RobotLearner</autonomy>
+
+    </entity>
+
+</runscript>
